@@ -12,10 +12,10 @@ sealed class AddEditTransactionEvent {
         AddEditTransactionEvent()
     object OnExpandedChange : AddEditTransactionEvent()
     object OnDismissRequest : AddEditTransactionEvent()
+
     data class ChangeSelectedOption(val value: String) : AddEditTransactionEvent()
 
     object OpenDialog : AddEditTransactionEvent()
     object CloseDialog: AddEditTransactionEvent()
-
 
 }

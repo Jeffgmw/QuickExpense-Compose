@@ -85,6 +85,5 @@ fun TransactionCard(transaction: Transaction, onClick: () -> Unit) {
                 )
             }
         }
-
     }
 }

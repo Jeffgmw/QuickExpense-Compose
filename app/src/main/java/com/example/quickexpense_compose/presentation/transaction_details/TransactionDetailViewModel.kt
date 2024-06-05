@@ -16,53 +16,59 @@ class TransactionDetailViewModel @Inject constructor(
     private val userDataRepository: TransactionRepository,
     savedStateHandle: SavedStateHandle,
 ) : ViewModel() {
+
     private val transactionId: Int = checkNotNull(savedStateHandle["transactionId"])
     private val _currTransaction = mutableStateOf(CurrTransactionState())
     val currTransaction: State<CurrTransactionState> = _currTransaction
 
     init {
+        loadTransactionDetails()
+    }
+
+    private fun loadTransactionDetails() {
         viewModelScope.launch {
-            userDataRepository.getTransactionById(transactionId).collect {
-                _currTransaction.value = currTransaction.value.copy(
-                    transaction = it
-                )
+            userDataRepository.getTransactionById(transactionId).collect { transaction ->
+                _currTransaction.value = CurrTransactionState(transaction = transaction)
             }
         }
-
     }
 
     fun onEvent(event: TransactionsDetailEvent) {
         when (event) {
-            is TransactionsDetailEvent.Delete -> {
-                event.navHostController.navigateUp()
-
-                viewModelScope.launch {
-                    userDataRepository.deleteTransactionById(event.id)
-                }
-
-            }
-            is TransactionsDetailEvent.Edit -> {}
-            is TransactionsDetailEvent.Share -> {
-                val sendIntent: Intent = Intent().apply {
-                    action = Intent.ACTION_SEND
-                    putExtra(
-                        Intent.EXTRA_TEXT,
-                        if (_currTransaction.value.transaction?.transactionType == "Expense") {
-                            "I paid KES ${_currTransaction.value.transaction?.amount} for ${_currTransaction.value.transaction!!.title}."
-                        } else {
-                            "I earned KES ${_currTransaction.value.transaction?.amount} from ${_currTransaction.value.transaction!!.title}."
-
-                        }
-                    )
-                    type = "text/plain"
-                }
-
-                val shareIntent = Intent.createChooser(sendIntent, null)
-                event.context.startActivity(shareIntent)
-
-            }
+            is TransactionsDetailEvent.Delete -> handleDeleteEvent(event)
+            is TransactionsDetailEvent.Edit -> handleEditEvent(event)
+            is TransactionsDetailEvent.Share -> handleShareEvent(event)
         }
     }
 
+    private fun handleDeleteEvent(event: TransactionsDetailEvent.Delete) {
+        event.navHostController.navigateUp()
+        viewModelScope.launch {
+            userDataRepository.deleteTransactionById(event.id)
+        }
+    }
 
+    private fun handleEditEvent(event: TransactionsDetailEvent.Edit) {
+        // Handle the edit event here
+    }
+
+    private fun handleShareEvent(event: TransactionsDetailEvent.Share) {
+        val transaction = _currTransaction.value.transaction
+        val shareText = transaction?.let {
+            if (it.transactionType == "Expense") {
+                "I paid KES ${it.amount} for ${it.title}."
+            } else {
+                "I earned KES ${it.amount} from ${it.title}."
+            }
+        } ?: ""
+
+        val sendIntent = Intent().apply {
+            action = Intent.ACTION_SEND
+            putExtra(Intent.EXTRA_TEXT, shareText)
+            type = "text/plain"
+        }
+
+        val shareIntent = Intent.createChooser(sendIntent, null)
+        event.context.startActivity(shareIntent)
+    }
 }

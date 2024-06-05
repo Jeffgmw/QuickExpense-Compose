@@ -32,9 +32,9 @@ fun About() {
             contentDescription = "App Logo",
             modifier = Modifier.size(150.dp)
         )
-        Text(text = "Expense", color = Color(0xFF5F7464), fontSize = 24.sp)
+        Text(text = "Track your Income and Expenses:", color = Color(0xFF5F7464), fontSize = 24.sp)
         Spacer(modifier = Modifier.height(24.dp))
-        Text(text = "From", fontStyle = FontStyle.Italic)
+        Text(text = "From", fontStyle = FontStyle.Italic, fontSize = 20.sp)
         Text(text = "Geoffrey Maina", fontSize = 24.sp)
         Spacer(modifier = Modifier.height(24.dp))
         Row {

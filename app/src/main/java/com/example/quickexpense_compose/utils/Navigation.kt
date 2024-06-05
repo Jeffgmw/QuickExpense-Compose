@@ -144,6 +144,7 @@ fun NavigationGraph(navController: NavHostController) {
         composable(route = Screens.About.route) {
             About()
         }
+
         composable(
             route = Screens.Transactions.route
         ) {
@@ -235,3 +236,4 @@ fun BottomBar(navController: NavHostController) {
         )
     }
 }
+
